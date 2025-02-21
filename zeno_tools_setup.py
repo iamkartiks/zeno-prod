@@ -1,20 +1,21 @@
 import bpy
 import sys
+import os
 from pathlib import Path
+from load_env import load_env_file
+
+# Load environment variables from .env file
+load_env_file()
 
 # Add the parent directory of zeno_tools_setup.py to Python path
 SCRIPT_DIR = Path(__file__).parent
 if str(SCRIPT_DIR) not in sys.path:
     sys.path.append(str(SCRIPT_DIR))
 
-# Add Custom Python Environment
-CUSTOM_ENV_PATHS = [
-    "/Users/kartikeysinha/Desktop/local-git-repository/zeno-prod/blender-env/lib/python3.9/site-packages",
-]
-
-for path in CUSTOM_ENV_PATHS:
-    if path not in sys.path:
-        sys.path.append(path)
+# Add Custom Python Environment from environment variable
+CUSTOM_ENV_PATH = os.getenv('ZENO_ENV_PATH')
+if CUSTOM_ENV_PATH and CUSTOM_ENV_PATH not in sys.path:
+    sys.path.append(CUSTOM_ENV_PATH)
 
 # Import the tools package
 try:

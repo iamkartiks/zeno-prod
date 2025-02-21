@@ -1,14 +1,32 @@
 import subprocess
 import os
 from pathlib import Path
+from load_env import load_env_file
 
-# ------------------------------------------------------------------------
-# Configuration (Modify These Paths)
-# ------------------------------------------------------------------------
-BLENDER_EXECUTABLE = "/Applications/Blender.app/Contents/MacOS/Blender"  # Or full path: "C:\\Program Files\\Blender\\blender.exe"
-CUSTOM_ENV_PATH = "/Users/kartikeysinha/Desktop/local-git-repository/zeno-prod/blender-env/lib/python3.9/site-packages"  # Your packages
-ZENO_TOOLS_PATH = "/Users/kartikeysinha/Desktop/local-git-repository/zeno-prod/tools"  # New path for tools
-ZENO_TOOLS_SCRIPT = "/Users/kartikeysinha/Desktop/local-git-repository/zeno-prod/zeno_tools_setup.py"  # Your setup script
+# Load environment variables from .env file
+load_env_file()
+
+# Now you can access the environment variables
+BLENDER_EXECUTABLE = os.getenv('ZENO_BLENDER_PATH')
+CUSTOM_ENV_PATH = os.getenv('ZENO_ENV_PATH')
+ZENO_TOOLS_PATH = os.getenv('ZENO_TOOLS_PATH')
+ZENO_TOOLS_SCRIPT = os.getenv('ZENO_TOOLS_SCRIPT')
+ZENO_PROD_PATH = os.getenv('ZENO_PROD_PATH')
+# Add validation to ensure required environment variables are set
+def validate_env_vars():
+    required_vars = {
+        'ZENO_BLENDER_PATH': BLENDER_EXECUTABLE,
+        'ZENO_ENV_PATH': CUSTOM_ENV_PATH,
+        'ZENO_TOOLS_PATH': ZENO_TOOLS_PATH,
+        'ZENO_TOOLS_SCRIPT': ZENO_TOOLS_SCRIPT
+    }
+    
+    missing_vars = [var for var, value in required_vars.items() if not value]
+    if missing_vars:
+        raise EnvironmentError(
+            f"Missing required environment variables: {', '.join(missing_vars)}\n"
+            "Please set these variables in the .env file."
+        )
 
 # ------------------------------------------------------------------------
 # Build Blender Command
@@ -23,11 +41,12 @@ import bpy
 # Add paths
 sys.path.append(r'{}')
 sys.path.append(r'{}')
+sys.path.append(r'{}')
 
 # Execute the setup script
 with open(r'{}', 'r') as file:
     exec(file.read())
-""".format(CUSTOM_ENV_PATH, ZENO_TOOLS_PATH, ZENO_TOOLS_SCRIPT)
+""".format(ZENO_PROD_PATH, CUSTOM_ENV_PATH, ZENO_TOOLS_PATH, ZENO_TOOLS_SCRIPT)
 
     # Write the temporary script
     temp_script_path = os.path.join(os.path.dirname(__file__), "temp_startup.py")
